@@ -40,14 +40,24 @@ When assigning a value to an object, R does not print anything. You can force R 
 
 ```{r}
 5
+x = 5
+(x=5)
+x
 
 
 
 ```
 
 ```{r}
+
+```
+
+```{r}
 # objects can store more than one value in a one dimensional vector
-my_vector <- c()
+my_vector <- c(1, 2, 5, 6, 8)
+my_vector*2
+
+
 ```
 
 Whole **data frames** can also be assigned to objects. MPG is one that comes built in with the tidyverse package and describes specs of different models of car.
@@ -59,9 +69,9 @@ Remember, **packages** are bundles of code and functions that other people have 
 penguins
 
 # You only need to install a package once on your computer (like buying a book)
-install.packages()
+install.packages("palmerpenguins")
 
-install.packages()
+install.packages("rmarkdown")
 
 # Each time you reopen R however, you need to call the packages you're using fresh from the library
 library()
@@ -74,9 +84,9 @@ library()
 **tidyverse** is a very popular package that we will use functions from a lot, and is actually a collection of packages. One of the packages in it is **ggplot2**, which makes it very easy to make very nice looking plots.
 
 ```{r}
-install.packages()
+install.packages("tidyverse")
 
-library()
+library(ggplot2)
 
 mpg
 
@@ -89,8 +99,8 @@ But come on, there's time for all that boring stuff later, you said we could mak
 The **fivethirtyeight** package contains data sets written about on the FiveThirtyEight blog. We're going to play with a data set of popular Halloween candies, their characteristics and how popular they are, as assessed in survey data.
 
 ```{r}
-install.packages()
-library()
+install.packages("fivethirtyeight")
+library(fivethirtyeight)
 ```
 
 What are some ways we can look at this dataset?
@@ -100,15 +110,15 @@ candy_rankings
 ```
 
 ```{r}
-head()
+head(candy_rankings)
 ```
 
 ```{r}
-glimpse()
+glimpse(candy_rankings)
 ```
 
 ```{r}
-View()
+View(candy_rankings)
 ```
 
 ## GGPLOTS: The Basic format
@@ -140,12 +150,14 @@ ggplot(<dataset>) +
 Let's do it step by step:
 
 ```{r}
-ggplot() # this line makes the space to put the plot, the background
+ggplot(candy_rankings)
+  
+# this line makes the space to put the plot, the background
 ```
 
 ```{r}
-ggplot() + 
-  aes(x = ) # this says what to put on the axes
+ggplot(candy_rankings) + 
+  aes(x = chocolate) # this says what to put on the axes
 ```
 
 ```{r}
@@ -172,8 +184,9 @@ For example, here we've plotted the win percentage (how often people ranked it i
 We're using the **geom_point()** function to plot this as a scatter plot.
 
 ```{r}
-sweetness <- ggplot() + 
-  aes(x = , y = ) + 
+sweetness <- ggplot(candy_rankings) + 
+  aes(x = sugarpercent, y = winpercent) + 
+  geom_point()
 
 
 
@@ -183,20 +196,24 @@ To add a best-fit regression line, we can use the **geom_smooth()** function. Th
 
 ```{r}
 sweetness + 
-  geom_smooth()
+  geom_smooth(method="lm")
 ```
 
 If we'd like to compare sweetness across a categorical variable, like chocolate or not chocolate, we can use a **box and whisker plot**, generated with **geom_boxplot()**. What question is this plot asking?
 
 ```{r}
-sweetness <- ggplot()
+sweetness <- ggplot(candy_rankings)+
+  aes(x=choloate), y=sugarpercent
 sweetness
 ```
 
 Finally, let's try making a histogram - this only takes an input argument for the x axis.
 
 ```{r}
-sweethist <- ggplot()
+sweethist <- ggplot(candy_rankings)+
+  aes(x=sugarpercent)+
+  geom_histogram()
+
 sweethist
 ```
 
@@ -204,7 +221,7 @@ sweethist
 
 Check out your **ggplot2 cheatsheet!** This has a nice visual reference to what geom to use to make what kind of plot.
 
-More detail here, to not worry about yet. https://ggplot2.tidyverse.org/reference/
+More detail here, to not worry about yet.
 
 ### Tests:
 
@@ -223,17 +240,17 @@ Reference: bit.ly/colors-r
 You can change the color in the geom argument. Test out how it works on different geoms!
 
 ```{r}
-ggplot() +  
-  aes(x = ) + 
-  geom_bar(color = '', fill = ) 
+ggplot(candy_rankings) +  
+  aes(x = chocolate) + 
+  geom_bar(color = 'darkgreen', fill = 'lightblue') 
 ```
 
 If you want the color to reflect another variable, for example, if there is fruit in the candy too, then you make it a **mapped aesthetic**, or one that refers to some data to assign a visual. In this case, you place the **color** or **fill** argument **inside aes().**
 
 ```{r}
-ggplot() +  
-  aes(x = , fill = ) + 
-  geom_bar(position = ) 
+ggplot(candy_rankings) +  
+  aes(x = chocolate , fill = sugarpercent ) + 
+  geom_bar(position = xmin) 
 ```
 
 ### Challenge question: what proportion of candies have BOTH chocolate and caramel?
