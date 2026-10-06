@@ -26,13 +26,13 @@ Outside the chunk you can write anything you want.
 
 **To run a line of R code (aka, send it to the Console), you can:**
 
--   Click the "Run" button in the upper right of the script window
+- Click the "Run" button in the upper right of the script window
 
--   Press Cmd + Enter while the cursor is on the line (or highlighted)
+- Press Cmd + Enter while the cursor is on the line (or highlighted)
 
 **To run a whole chunk:**
 
--   Click the green "Play" button on the right side of the chunk header.
+- Click the green "Play" button on the right side of the chunk header.
 
 Command + Alt + I generates a new "chunk". Try it here! (or Ctrl + Alt + I for PC)
 
@@ -42,19 +42,18 @@ When assigning a value to an object, R does not print anything. You can force R 
 5
 x = 5
 (x=5)
-x
+x^4
 
 
 
 ```
 
-```{r}
-
+```         
 ```
 
 ```{r}
 # objects can store more than one value in a one dimensional vector
-my_vector <- c(1, 2, 5, 6, 8)
+my_vector=c(1, 2, 5, 6, 8)
 my_vector*2
 
 
@@ -74,10 +73,10 @@ install.packages("palmerpenguins")
 install.packages("rmarkdown")
 
 # Each time you reopen R however, you need to call the packages you're using fresh from the library
-library()
+library("palmerpenguins")
 
 # Then you can access the data frames and functions stored in the package :) 
-
+penguins
 
 ```
 
@@ -86,9 +85,9 @@ library()
 ```{r}
 install.packages("tidyverse")
 
-library(ggplot2)
+library(tidyverse)
 
-mpg
+library(ggplot2)
 
 ```
 
@@ -227,7 +226,7 @@ More detail here, to not worry about yet.
 
 1.  Are fruity candies cheaper?
 
--   Can you make a boxplot that shows the price percent depending on fruity?
+- Can you make a boxplot that shows the price percent depending on fruity?
 
 2.  Are sweeter candies more expensive? Do the candies with higher sugarpercent have higher winpercent? Plot this relationship.
 
