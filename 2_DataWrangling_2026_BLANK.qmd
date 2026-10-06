@@ -181,7 +181,7 @@ and finally, the one that makes them all the MOST useful:
 
 `|>` is a pipe. (vertical bar, on the same key as the backslash `\`.
 
-PIPE SHORTCUT \
+PIPE SHORTCUT\
 shift ctrl m on mac\
 
 You can think of it as substituting for the words "**and then**". It passes the output of everything before it into the function after the pipe as the data or input argument. This will make more sense in practice! Here is an example:

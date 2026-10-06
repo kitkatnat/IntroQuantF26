@@ -516,7 +516,7 @@ nrow(fake_data_2)
 bind_rows(fake_data_1, fake_data_2) |> nrow()
 
 
-### bind_cols()
+### bind_cols() 
 
 color_vector <- c("pink", "blue", "aquamarine", "tan", "yellow",
           "coral","purple", "deepskyblue", "red", "green" )
