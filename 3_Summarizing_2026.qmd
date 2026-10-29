@@ -83,7 +83,7 @@ geom_col(position = position_dodge()) +
 Boiling it down to the mean and standard deviation really loses a lot of information though. It's always good to look at the histogram/distribution to get a better sense of what's going on. Let's look back at just that one histogram.
 
 ```{r}
-CC_sp19 <- CCdata_tidy %>%
+CC_sp19 <- CCdata_tidy %>% 
   filter(Season == "Spring" & Year == 2019 & Impact == "High")
 
 CC_sp19 %>%

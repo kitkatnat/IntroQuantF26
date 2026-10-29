@@ -11,13 +11,13 @@ editor: visual
 This tutorial will walk you through how to conduct various simple one- and two-sample tests in R, as well as a simple ANOVA, using examples.
 
 ```{r}
-install.packages()
+install.packages("Hmisc)
 
 library(tidyverse)
 ```
 
 ```{r}
-load()
+load(file = "Demo Data Files/S4E2e.RData")
 ```
 
 # Binomial Test
@@ -34,18 +34,19 @@ Toads: 14 right-handed toads out of 18 toads - is that different from our null o
 # n is the sample size
 # p is the proportion predicted under the null hypothesis
 
-binom.test(x = , n = , p = )
+binom.test(x = 14, n = 18, p = 0.5)
 
-binom.test( 
-           alternative = , 
-           conf.level = )
+binom.test( x = 14, n = 18, p = 0.5,
+           alternative = "greater", 
+           conf.level = 0.9)
 ```
 
 If we want to visualize a binomial plot for this, we can do that too!
 
 ```{r}
-success <- 
-plot(, dbinom(),)
+success <- c(0:18)
+plot(success, dbinom(success, size = 18, prob = .5),type = 'h')
+#type = makes it a line bar , eleting it makes it dots
 ```
 
 # T-tests and other tests of difference
@@ -57,15 +58,15 @@ Say you are a scientist interested in the extinct pygmy mammoths of the Channel 
 ```{r one-sample}
 ?t.test
 
-mammoths <- 
+mammoths <- c(0.68, 1.60, 1.90, 1.01, 1.47, 1.55, 1.07, 1.34, 1.98, 1.59)
 
-t.test()
+t.test(mammoths, mu = 4.0)
 
 # if mammoths is part of a data frame, you can select just the column using the $ operator
 
-mammoth_data <- tibble()
+mammoth_data <- tibble(ID = seq(1:10), mammoths)
 
-t.test()
+t.test(mammoth_data$mammoths, mu = 4)
 
 ```
 
@@ -74,26 +75,31 @@ Are the pygmy mammoths really substantially smaller?
 Assign your output to an object called "mammoth_test", and look at your results using the summary() and str() functions. What do they show you?
 
 ```{r one-sample-results}
-mammoth_test <- t.test()
+mammoth_test <- t.test(mammoths, mu = 4)
 
-summary()
-str() # str is structure
+summary(mammoth_test)
+str(mammoth_test) # str is structure
 ```
 
 ```{r p-value-solution}
-
+mammoth_test$p.value
 ```
 
 Visualize:
 
 ```{r}
-mammoths |>  |>
-  ggplot() + 
- + 
-  xlim() +  
-    linetype = ) + 
-  + 
-  labs(x = ) 
+mammoths |> as_tibble |>
+  ggplot(aes(x = vaule)) + 
+  geom_boxplot()
+  xlim(o, 4.5) + 
+    geom_vline(
+      aes(xintercept = 4.0),
+      linetype = "dotted"
+      color = "red"
+    ) + 
+    coord_flip() = 
+    labs(x = "Mammoth Height  at shoulders (m) ")
+    theme_classic()
 
 ```
 
@@ -110,7 +116,7 @@ Ridge and furrow topography was a result of ploughing with non-reversible plough
 To test whether this ancient remnant of farming practices continues to influence biodiversity today, researchers collected data on the abundance of meadow buttercup plants in 1-m\^2 quadrats on the tops of ridges and in the bottom of furrows. The different ways that data can be formatted is shown below. Take a look at the object "rf1"
 
 ```{r two-sample}
-glimpse()
+glimpse(rf1)
 
 ```
 
@@ -123,14 +129,15 @@ Use a two-sample t-test to see if the ridges differ in buttercup abundance from 
 The formula is specified as `response ~ predictor`. This is a common format for specifying our model.
 
 ```{r two-sample-rf1}
-t.test(, data = )
+t.test(count ~ area, data = rf1)
+
 ```
 
 You've likely noticed that your output is from a Welch's t-test, which R runs by default instead of a Student's t-test. Welch's t-test is a modification of the Student's t-test which reduces the p-value slightly and makes the test a little more conservative. R can also run a Student's t-test, you just have to add the argument "var.equal = TRUE". Run the following two lines and compare the output.
 
 ```{r two-sample-compare}
 t.test() 
-t.test() 
+t.test(count ~ area, data = rf1, var.equal = TRUE)
 ```
 
 ## Paired two-sample T-test
@@ -138,29 +145,33 @@ t.test()
 Say you have a pond with a limited number of turtles, and you are interested in whether their weight changed after a substantial drought, which could be important for assessing fitness and reproductive ability. To do so, you've recaptured the same turtles before and after the drought. Since you are measuring the same turtles in each sample, you need to conduct a <b> paired </b> t-test.
 
 ```{r print-limit}
-Before <- 
-After <-
-TurtleID <- c()
+Before <- c(12.9, 13.5, 12.8, 15.6, 17.2, 19.2, 12.6, 15.3, 14.4, 11.3)
+After <- c(12.7, 13.6, 12.0, 15.2, 16.4, 19.0, 11.9, 14.3, 13.5, 10.5)
+TurtleID <- c(seq(1:10))
 
 
 # how can we put this into a tidy dataframe? 
 turtles <- 
-  tibble() |> 
+  tibble(TurtleID, Before, After) |> 
   pivot_longer(
-    cols =, 
-    names_to = , 
-    values_to = )
+    cols = 2:3, 
+    names_to = "when", 
+    values_to = "Mass"
+  )
+  
 
-rm() # this line deletes those objects so we don't get confused later, ignore for now
+rm(Before, After, TurtleID) # this line deletes those objects so we don't get confused later, ignore for now
 
 
-
+turtles
 ```
 
 As always, we want to visualize our data first.
 
 ```{r}
-ggplot() + aes(x = , y = ) + 
+ggplot(turtles) + 
+  aes(x = When, y = Mass) + 
+  geom_boxplot()
 
 ```
 
@@ -169,7 +180,8 @@ Hmm. Not very different, but this first pass doesn't take into account that our 
 The data frame we just made is perfectly tidy and ready for us to do a normal t-test, that ISN'T paired:
 
 ```{r}
-t.test( ~ , data = )
+t.test(Mass ~ When , data = turtles )
+#Wrong, just wants to show
 ```
 
 But doing it this way is incorrect, because our data was paired! The Before and After measurements were done on the same turtles, twice, so there is structure in our data we need to account for.
@@ -179,8 +191,10 @@ For the paired t-test function to work, we actually need our data to be a little
 Let's practice pivoting our data back again:
 
 ```{r print-limit-hint}
-turtles_wide <-  |>  
+turtles_wide <- turtles |>  
   pivot_wider(
+    names_from = when, 
+    values_from = Mass
     )
 
 
@@ -189,7 +203,8 @@ turtles_wide <-  |>
 The vectors we will use are the two columns *Before* and *After*, which we know are both arranged in order by ID. We put them into the function separated by a comma, then add our argument to compute it as a paired t-test.
 
 ```{r}
-t.test()
+t.test(turtles_wide$Before, turtles_wide$After,
+       paired = TRUE)
 ```
 
 It was really important that we paired them! The result is now significant.
@@ -197,18 +212,25 @@ It was really important that we paired them! The result is now significant.
 This version illustrates how a single turtle changed from Before to After, as the two observations for each turtle are connected by a line. You can tell that the general trend is downward, even though there was a lot of variability between turtles.
 
 ```{r}
-turtles <-  |> 
-  mutate(When = , levels = c) 
-
-turtles |>  + aes() + 
+turtles <-  turtles |> 
+  mutate(When = factor, levels = c("Before", "After")) 
+#mutate to specifiy what order it comes in 
+turtles |> 
+  ggplot() + 
+  aes(x = when, y = Mass, color = TurtleID) + 
+  geom_point() +
+  geom_line()
 ```
 
 In this one, we calculated the difference in Mass from Before to After. If that difference is statistically different from zero (sortof like a one-sample t-test...), then we have evidence there was a change. This graph shows the difference and then we added a dashed line to illustrate our comparison, and suddenly it makes sense why our test was statistically significant.
 
 ```{r}
-turtles_change <-  |> 
-  mutate()
-ggplot() + aes(y = )
+turtles_change <- turtles_wide |> 
+  mutate(Change = After -Before)
+
+ggplot(turtles_change) + aes(y = Change) + 
+  geom_boxplot() +
+geom_hline( aes(yintercept - 0), linetype = "dashed", color = "pink")
 ```
 
 It's not too often, but occasionally you will be interested in only one tail of the distribution, and your null and alternative hypotheses will be formatted as:
@@ -222,9 +244,9 @@ To use one-tailed tests, you must have a really good reason why you don't think 
 Try running a t-test and comparing outcomes with different alternative hypotheses.
 
 ```{r one-tailed-test-hint}
-t.test(, 
-       paired = , 
-       alternative = )
+t.test(turtles_wide$After, turtles_wide$Before,  
+       paired = TRUE, 
+       alternative = "less")
 ```
 
 Visualize...
@@ -240,7 +262,7 @@ turtles |>
 Data is not always normally distributed, however, and if your data is egregiously non-parametric, it can be better to use a non-parametric test. The non-parametric equivalent of the one-sample t-test is the Wilcoxon test, also know as a Mann-Whitney U-test. Look at the Help menu for the wilcox.test() function.
 
 ```{r wilcox-help}
-?
+?wilcox.test
 ```
 
 Take a look at the datasets *flour1*, *flour2*, *Woad.fm* and *Glebe.fm*, which all contain the same data. The researchers took a ten samples of flour at two farms, Woad Farm and Glebe Farm, and counted the number of flour beetles in each sample. Which dataset is in "tidy" format, i.e., rows contain observations, columns contain variables?
@@ -248,18 +270,19 @@ Take a look at the datasets *flour1*, *flour2*, *Woad.fm* and *Glebe.fm*, which 
 ```{r view-flour}
 flour1
 flour2
+#same type of data on same colum so flour1 is tider 
 
-ggplot() + aes() +  + facet_wrap()
+ggplot(flour1) + aes(x= qty) + geom_histogram() + facet_wrap(site~.)
 
-Woad.fm <- 
-Glebe.fm <- 
+Woad.fm <- flour1 |>filter(site == "woad Fm")
+Glebe.fm <- flour1 |> filter(site == "glebe Fm")
 
 ```
 
 Test whether the median number of flour beetles at Woad Farm differs from 3.5.
 
 ```{r wilcox-one-sample-solution}
-wilcox.test()
+wilcox.test(Woad.fm, mu = 3.5)
 ```
 
 Now try a Wilcoxon signed-rank test (two-sample) on Woad vs. Glebe Farm, using the dataframe you identified as the one in "tidy formatting". Note: you will likely get an error message that says that it "cannot compute exact p-value with ties". Ties are when multiple observations share the same value.
@@ -267,13 +290,13 @@ Now try a Wilcoxon signed-rank test (two-sample) on Woad vs. Glebe Farm, using t
 By default (if exact is not specified), an exact p-value is computed if the samples contain less than 50 finite values and there are no ties. Otherwise, a normal approximation is used. You can get rid of this error message by adding the argument "exact = FALSE".
 
 ```{r wilcox-two-sample-solution}
-wilcox.test()
+wilcox.test(qty ~ site, data = flour1, exact = FALSE)
 ```
 
 Paired, demonstrated with our turtle data from earlier:
 
 ```{r}
-wilcox.test()
+wilcox.test(turtles_wide$Before, turtles_wide$After, paired = TRUE)
 
 ```
 
@@ -296,12 +319,14 @@ We will follow the following steps to conduct our test:
 Today we are examining a data set of plant heights (specifically grasses) collected at three sites on a hillside - Upper, Middle and Lower. We are interested in if location on the hillside influences plant height.
 
 ```{r}
-
+sward2
 ```
 
 ### Step 2: Write a formula for the test
 
 Which variable is the predictor (IV)? Which is the response (DV)?
+
+predicitor is the catergory
 
 Compose a formula that represents how you think your variables are related (i.e., your hypothesis). You can think of this as a sentence that says, RESPONSE is a function of PREDICTOR, where the tilde (\~) stands in for the words "is a function of" or "depends on".
 
@@ -316,7 +341,7 @@ Therefore, using the real column names, our formula for this test is:
 We will create a model object here that will allow us to test some of our assumptions later. lm() stands for linear model; ANOVA is a special case of linear model and this function works fine for us here.
 
 ```{r}
-model <-
+model <- lm(Height ~ Site, data = sward2)
 ```
 
 ### Step 3 : Visualize the data
@@ -324,9 +349,10 @@ model <-
 The first step in an analysis is ALWAYS to visualize your data. Does it look about how you expect?
 
 ```{r}
-ggplot() + 
-  aes(x = , y = ) + 
-  
+ggplot(sward2) + 
+  aes(x = Site, y = Height) + 
+  geom_boxplot()
+  #good variance in all 3 samples (roughly the same size) , 
 ```
 
 ### Step 4 : Check Assumptions
@@ -342,25 +368,25 @@ Are there extreme outliers in your plot? A couple relatively close to the `1.5*I
 Do your box plots look roughly symmetrical from top to bottom?
 
 ```{r}
-#examples with fake data
-skewed1 = rnorm()
-skewed1 = 
-skewed2 = rnorm()
-skewed2 = 
-uniform = runif()
-normal = 
-badvecs <- tibble() |> pivot_longer()
-ggplot()
+#examples with fake data, second one has a long whisker, box plot not always show everything so try out diff times 
+skewed1 = rnorm(20, mean = 1, sd = 1)^2
+skewed1 = skewed1/max(skewed1)
+skewed2 = rnorm(20, mean = 1.5, sd = 1)^3
+skewed2 = skewed2/max(skewed2)
+uniform = runif(20, min = 0, max = 1)
+normal = rnorm(20, mean = 0.5, sd = 0.25)
+badvecs <- tibble(skewed1, skewed2, uniform, normal) |> pivot_longer(names_to = "dist", values_to = "vals", cols = 1:4)
+ggplot(badvecs, aes(x = dist, y = vals)) + geom_boxplot()
 
-abnormalmodel <- lm()
+abnormalmodel <- lm(vals ~ dist, data = badvecs)
+#3 diff samples, diff variance , fails homogenity , amount of variance in all three the same
+vec1 <- rnorm(20, mean = 0, sd  = 1)
+vec2 <- rnorm(20, mean = 0, sd = 5)
+vec3 <- rnorm(20, mean =5, sd = 0.1)
+HOVbad <- tibble(vec1,vec2,vec3) |> pivot_longer(names_to = "dist", values_to = "vals", cols = 1:3)
+ggplot(HOVbad, aes(x = dist, y =vals)) + geom_boxplot()
 
-vec1 <- rnorm()
-vec2 <- 
-vec3 <- 
-HOVbad <- 
-ggplot(, aes() + 
-
-HOVbadmodel <-
+HOVbadmodel <- lm(vals~dist, data = HOVbad)
 ```
 
 Does a Q-Q plot of the model residuals form roughly a straight line?
@@ -368,18 +394,21 @@ Does a Q-Q plot of the model residuals form roughly a straight line?
 Note: the numbered points are ones that are being highlighted as outliers, technically. You can decide later if you want to keep them or not. The number indicates the row number in the original data frame.
 
 ```{r}
-plot(model, )
+plot(model, which = 2)
+#test for normality, is it normally distrubted, are the points following the line 
 
-plot()
+plot(abnormalmodel, which = 2)
 
 ```
 
 The null hypothesis of a Shapiro-Wilk test is that the distribution of the data is not different from a normal distribution. Therefore, p\<0.05 means your model residuals are different from normal. Caveat: the Shapiro-Wilk test is oversensitive with greater than 50 observations. Our "badmodel" is significantly not normal, but also has 60 observations, so the Shapiro test is starting to be not appropriate.
 
 ```{r}
-shapiro.test()
+shapiro.test(model$residuals)
+#if it differs from the normal, over .5 then it is normal 
 
-shapiro.test()
+shapiro.test(abnormalmodel$residuals)
+#less than .5 is not normal! 
 
 ```
 
@@ -390,8 +419,11 @@ Since our data is normal, we can move on to conduct the ANOVA!
 One way to check HOV is to plot the residuals against the fitted values and eyeball whether the variance looks screwy. If the variance isn't wildly different between the three samples, then we're good.
 
 ```{r}
-plot()
+plot(model , 1)
 
+plot(abnormalmodel, 1) #points are not evenly distrubted along the red line, 
+
+plot(HOVbadmodel, 1) #homgenity is way off 
 ```
 
 The null hypothesis of the Bartlett Test is that the variance is equal among all treatments.
@@ -400,9 +432,10 @@ The null hypothesis of the Bartlett Test is that the variance is equal among all
 ?bartlett.test
 
 # Bartlett Test of Homogeneity of Variances
-bartlett.test()
+bartlett.test(Height ~ Site, data = sward2)
 
 # HOV is separate from testing for normality! 
+bartlett.test(vals ~ dist, data=HOVbad)
 
 ```
 
@@ -416,7 +449,8 @@ You actually already conducted the computations for the ANOVA when you ran the l
 # remember:
 # model <- lm(Height ~ Site, data = sward2)
 
-anova()
+anova(model)
+# less than .05 is signifcant, it is 0.01497 so it is signifcant 
 ```
 
 The table above is what you are expected to report along with your analysis when you do an ANOVA for a paper. In addition, if you refer to your results in text, you'll share your F-value with the degrees of freedom as a subscript and the p-value (see Gardener Ch. 10, p. 259 for details and examples).
@@ -425,14 +459,14 @@ It's worth making sure this ran like you expected, especially when analyses star
 
 ```{r}
 # what do we expect to be our df for MS within? 
-nrow() # n number of observations
-length() # k number of groups
+nrow(sward2) # n number of observations, 18
+length(unique(sward2$Site)) # k number of groups, minimize to the unquie vaules, 3
 
 # Expected df for Site is k - 1
-
+length(unique(sward2$Site)) - 1
 
 # expected df for residuals is n - k
-
+18 - 3
 ```
 
 Are our samples significantly different from each other? Yes! However, this test only tells us that they ARE different, not WHICH ones are different.
@@ -443,8 +477,9 @@ If you do not find a relationship (i.e., p \> 0.05), then you are done. However,
 
 ```{r}
 # TukeyHSD likes a particular format for our input - instead of the lm() anova strategy it prefers an object made by aov(). It does the same calculations, just using a different function name. 
+Summary(aov(Height ~ Site, data = sward2)) #shows the same thing, diff code for same result
 
-TukeyHSD( aov(  ~ , data = = ) )
+TukeyHSD( aov( Height ~ Site , data = sward2 ) )
 ```
 
 Which ones are different?
@@ -456,39 +491,63 @@ Our box plot was useful for a first pass, but since our data was normal, we woul
 One approach we've used before is to use summarize to make a table of the mean and standard error at each site, then graph a column plot using geom_col() and geom_errorbar().
 
 ```{r}
-sward_summary <-  |> 
-  group_by() |>
-  summarise(mean = , 
-            se =  )
+sward_summary <- sward2 |> 
+  group_by(Site) |>
+  summarise(mean = mean(Height), 
+            se = sd(Height)/sqrt(n()) )
 
-ggplot() + 
-  aes() + 
+ggplot(sward_summary) + 
+  aes(x = Site, y = mean) + 
   geom_col() + 
-  geom_errorbar()
+  geom_errorbar(aes(ymin = (mean - se), ymax = (mean + se)), width = 0.2)
+ylab("Height")
 ```
 
 A second way is to allow ggplot to calculate the summary statistics for us. A second class of functions can be used instead of "geom" called "stat". In this case, we use two stat_summaries - one that calculates the mean, the other
 
 ```{r}
-ggplot() +
+ggplot(sward2) +
+  stat_summary(x = Site, y = Height) +
   stat_summary(
-    fun.data = ,
-    geom = , 
-    width = ) 
+    fun.y = "mean",
+    geom = "bar"
+  ) +
+  stat_summary(
+    fun.data = mean_se, 
+    geom = "errorbar", 
+    width = 0.1
+  )
 ```
 
 You may prefer to plot the 95% confidence limits instead of the standard error, which is more useful for large samples (and is approximately 1.96 \* standard error).
 
 ```{r}
-library()
-ggplot()
+library(Hmisc)
+ggplot(sward2) +
+  aes(x = Site, y = Height) +
+  stat_summary(
+    fun.y = "mean",
+    geom = "bar") +
+  stat_summary(
+    fun.data = mean_cl_normal,
+    geom = "errorbar", 
+    width = 0.1)
 ```
 
 That's a little stocky looking though, so let's try another way to look at it. All we have to do is substitute geom_point(). This one collapses the y-axis so it doesn't go all the way to zero, which can be an advantage if your variables don't make sense to go all the way to zero.
 
 ```{r}
-ggplot() 
+ggplot(sward2) +
+  aes(x = Site, y = Height) +
+  stat_summary(
+    fun.y = "mean",
+    geom = "point") +
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar", 
+    width = 0.1) 
 
+#draw pic of what kind of plot you want --> manifest it in r 
 ```
 
 #### Annotating significance
@@ -496,7 +555,7 @@ ggplot()
 This is a bit of a logic puzzle to annotate. Look at those Tukey HSD results again. Which pairwise comparisons indicate that the two samples don't differ?
 
 ```{r}
-TukeyHSD(
+TukeyHSD(aov(Height ~ Site, data = sward2))
 ```
 
 If one differed from all the others, then this would be simple and you can just put an asterisk above the one that is different.
@@ -512,16 +571,16 @@ That means Lower is now (AB), Middle is only (A), and Upper is only (B).
 We'll use geom_text to add these labels in order so they hover just above the error bars. This is the kind of thing that I recommend you just copy and paste from here, or Google when you need it. That's what I did just now, and stole the code from this website that came up: https://www.staringatr.com/3-the-grammar-of-graphics/bar-plots/3_tukeys/
 
 ```{r}
-ggplot() + 
-  aes() + 
-  geom_col() + 
-  geom_errorbar(), width = ) +
+ggplot(sward_summary) + 
+  aes(x = Site, y = mean) + 
+  geom_point() + 
+  geom_errorbar(aes(ymin = (mean - se), ymax = (mean + se)), width = 0.1) +
   geom_text(
-    label = 
-    aes(), 
-    vjust = 
-    size = 
-  ylim()
+    label = c("AB", "A", "B"), 
+    aes(y = mean+se, x = Site), 
+    vjust = -1, 
+    size = 3) + 
+  ylim(22, 35)
 ```
 
 If you don't like how that looks all crowded, you can also just pick a height to have the letters sit at that's aesthetically pleasing so they're all the same. To do this, just change the value where I've marked a big "%%%" and uncomment the line.

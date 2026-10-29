@@ -280,7 +280,7 @@ Power_Fert <- pwr.t.test(
   power = NULL,
   type = "two.sample"
 )
-
+?n
 Power_Fert$power
 ```
 

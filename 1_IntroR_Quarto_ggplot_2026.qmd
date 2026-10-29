@@ -46,6 +46,8 @@ x
 ```{r}
 # objects can store more than one value in a one dimensional vector
 my_vector <- c(1,4,5,6,8)
+
+?C
 ```
 
 Whole **data frames** can also be assigned to objects. MPG is one that comes built in with the tidyverse package and describes specs of different models of car.
@@ -102,7 +104,7 @@ head(candy_rankings)
 ```
 
 ```{r}
-glimpse(candy_rankings)b
+glimpse(candy_rankings)
 ```
 
 ```{r}
