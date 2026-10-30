@@ -11,7 +11,7 @@ editor: visual
 For your final project analysis, you have been placed into groups, within which you can collaborate and help each other. Within your group, you will divide up the different data that is available to ask questions. You are required to address TWO questions each.
 
 1.  An ANOVA/GLM question that addresses the impact of the experimental treatments on a measured variable (SPAD, stomatal conductance, or height) in one of the two plant species.
-2.  A question of your choice that analyzes one of the abiotic variables (soil moisture, slope, aspect, etc.), past year data, or an interaction within the experiment.
+2.  A question of your choice that does your regression.
 
 The following worksheet will guide you through developing your research questions, hypotheses, and analysis approach.
 
@@ -33,31 +33,31 @@ Moist_Data_Raw <-
   read_excel("Oak Data Entry MCRS Field Trip.xlsx", 
              sheet = "Soil Moisture")
 
-SPAD_Data_Raw <- 
+SPAD_Data_Raw <-
   read_excel("Oak Data Entry MCRS Field Trip.xlsx", 
-             sheet = "SPAD", 
-             na = "NA")
+             sheet = "SPAD")
+
 ```
 
 **Amy gives the gift of importing the LICOR objects for you:**
 
 ```{r}
-LICOR_Data_Raw_NAMES <- 
+LICOR_Data_Raw_NAMES <- #geenrate name i want 
   read_excel("Oak Data Entry MCRS Field Trip.xlsx",              
              sheet = "LICOR", 
-             n_max = 3, 
-             col_names = FALSE, 
+             n_max = 3, #only take first three rows
+             col_names = FALSE, #dont import column name 
              col_types = "text") |> 
-  summarise(across(.fns = paste, collapse = "_")) |> 
+  summarise(across(.fns = paste, collapse = "_")) |> #paste puts two cells into one word
   unlist() |> 
   unname()
 
-LICOR_Data_Raw <- 
+LICOR_Data_Raw <- #import the data 
   read_excel("Oak Data Entry MCRS Field Trip.xlsx",  
              sheet = "LICOR", 
              skip = 3, 
              col_names = LICOR_Data_Raw_NAMES,
-             col_types = "text")
+             col_types = "text") #convert to numerical when doing data cleaning 
 
 
 ALL_Licor_NAMES <- 
@@ -77,7 +77,7 @@ ALL_Licor <-
              col_names = ALL_Licor_NAMES, 
              col_types = "text")
 
-LICOR_Data_Raw <- full_join(LICOR_Data_Raw, ALL_Licor)
+LICOR_Data_Raw <- full_join(LICOR_Data_Raw, ALL_Licor) #combine mult dataset with keys
 ```
 
 ## Exploratory Data Analysis:
@@ -140,6 +140,24 @@ In this section we will look at and clean up each of the data sets you identifie
 You may be either examining `SPAD_Data_Raw`, `Height_Data_Raw`, `LICOR_Data_Raw`, or `Moist_Data_Raw` for your ANOVA question. Examine your data set using the diagnostic functions I've given you above in the How to Examine and Clean Data section.
 
 ```{r}
+# check the number of rows and columns
+nrow(SPAD_Data_Raw)
+ncol(SPAD_Data_Raw)
+dim(SPAD_Data_Raw)
+
+# Check column names and data types
+names(SPAD_Data_Raw)
+glimpse(SPAD_Data_Raw)
+
+# Check the treatment, block, and survival categories
+count(SPAD_Data_Raw, Treatment, sort = TRUE)
+count(SPAD_Data_Raw, Block, sort = TRUE)
+count(SPAD_Data_Raw, Dead_Alive, sort = TRUE)
+
+# Look at all recorded notes for irregular vaules
+SPAD_Data_Raw |>
+  filter(!is.na(Notes)) |>
+  select(Date, Block, Treatment, Tag_Num, Dead_Alive, Notes)
 
 ```
 
